@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newsletter → Social | BuildProven</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0A0A0A',
+            surface: '#111111',
+            card: '#181818',
+            border: '#252525',
+            'border-light': '#2E2E2E',
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Base */
+    * { box-sizing: border-box; }
+    html { background: #0A0A0A; color: #F1F1F1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+    /* Gradient logo text */
+    .logo-text {
+      background: linear-gradient(135deg, #A5B4FC 0%, #6366F1 50%, #4F46E5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Glow effect on primary button */
+    .btn-primary {
+      background: #6366F1;
+      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #4F46E5;
+      box-shadow: 0 0 24px rgba(99, 102, 241, 0.35);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Tab styles */
+    .tab-btn {
+      color: #888;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: #ccc; }
+    .tab-btn.active {
+      color: #A5B4FC;
+      border-bottom-color: #6366F1;
+    }
+
+    /* Post card */
+    .post-card {
+      background: #181818;
+      border: 1px solid #252525;
+      transition: border-color 0.15s ease;
+    }
+    .post-card:hover { border-color: #333; }
+
+    /* Post content — preserve whitespace/newlines */
+    .post-content {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #E0E0E0;
+    }
+
+    /* Copy button */
+    .copy-btn {
+      background: #252525;
+      color: #999;
+      border: 1px solid #333;
+      transition: all 0.15s ease;
+      font-size: 0.75rem;
+    }
+    .copy-btn:hover { background: #2E2E2E; color: #CCC; border-color: #444; }
+    .copy-btn.copied { background: #1a2e1a; color: #4ade80; border-color: #2d5a2d; }
+
+    /* Reach tier badges */
+    .tier-high { color: #4ade80; background: rgba(74, 222, 128, 0.08); border: 1px solid rgba(74, 222, 128, 0.2); }
+    .tier-medium { color: #fbbf24; background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.2); }
+    .tier-low { color: #f87171; background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); }
+
+    /* Tooltip */
+    .tooltip-wrapper { position: relative; display: inline-block; }
+    .tooltip-content {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      color: #ccc;
+      white-space: nowrap;
+      max-width: 260px;
+      white-space: normal;
+      text-align: center;
+      z-index: 100;
+      pointer-events: none;
+      line-height: 1.4;
+    }
+    .tooltip-content::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #333;
+    }
+    .tooltip-wrapper:hover .tooltip-content { display: block; }
+
+    /* Hook angle pills */
+    .angle-pill {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .angle-curiosity { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
+    .angle-data { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+    .angle-confession { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+    .angle-contrarian { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+    .angle-specific { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+    .angle-story { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+    .angle-question { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
+
+    /* Settings collapsible */
+    .settings-panel {
+      background: #111;
+      border: 1px solid #252525;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.8s linear infinite; }
+
+    /* Input styles */
+    .input-field {
+      background: #141414;
+      border: 1px solid #2E2E2E;
+      color: #F1F1F1;
+      transition: border-color 0.15s ease;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #6366F1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    .input-field::placeholder { color: #555; }
+
+    /* Character counter */
+    .char-counter { font-size: 0.75rem; color: #666; }
+    .char-counter.warning { color: #fbbf24; }
+    .char-counter.danger { color: #f87171; }
+
+    /* Slide-in animation for results */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-up { animation: slideUp 0.35s ease forwards; }
+
+    /* Error alert */
+    .error-box {
+      background: rgba(248, 113, 113, 0.08);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      border-radius: 8px;
+      color: #fca5a5;
+    }
+
+    /* Success indicator */
+    .success-pill {
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      color: #4ade80;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 9999px;
+    }
+
+    /* Tweet type badges */
+    .tweet-type { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    /* Schedule box */
+    .schedule-box {
+      background: rgba(99, 102, 241, 0.06);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 10px;
+    }
+
+    /* Loading overlay */
+    .loading-state { display: none; }
+    .loading-state.active { display: flex; }
+  </style>
+</head>
+<body class="min-h-screen" style="background: #0A0A0A;">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════════════════════ -->
+  <header style="border-bottom: 1px solid #1A1A1A;" class="sticky top-0 z-50" style="background: rgba(10,10,10,0.95); backdrop-filter: blur(12px);">
+    <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold tracking-tight">
+          <span class="logo-text">Newsletter → Social</span>
+        </h1>
+        <p class="text-xs mt-0.5" style="color: #555;">Built by <span style="color: #7C7CEA;">BuildProven</span></p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="https://buildproven.ai" target="_blank" rel="noopener"
+           class="text-xs px-3 py-1.5 rounded-md transition-colors"
+           style="color: #888; border: 1px solid #252525; background: #111;"
+           onmouseover="this.style.color='#ccc'; this.style.borderColor='#333';"
+           onmouseout="this.style.color='#888'; this.style.borderColor='#252525';">
+          buildproven.ai ↗
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════════════ -->
+  <main class="max-w-3xl mx-auto px-4 py-8">
+
+    <!-- ─── HERO ─────────────────────────────────────────────── -->
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold tracking-tight mb-2" style="color: #F1F1F1;">
+        Paste your newsletter.<br>
+        <span class="logo-text">Get a week of social posts.</span>
+      </h2>
+      <p class="text-sm" style="color: #666; max-width: 420px; margin: 0 auto;">
+        3 LinkedIn posts + 5 tweets + 10 hook variations. Prompts engineered from real performance data — posts that hit 38K impressions, not 315.
+      </p>
+    </div>
+
+    <!-- ─── STEP 1: SETTINGS ──────────────────────────────────── -->
+    <div id="settingsPanel" class="settings-panel mb-5 overflow-hidden">
+
+      <!-- Collapsed header (shown when settings are saved) -->
+      <div id="settingsCollapsed" class="hidden px-4 py-3 flex items-center justify-between cursor-pointer"
+           onclick="toggleSettings()" style="display: none;">
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-medium" style="color: #888;">⚙ Settings</span>
+          <span id="settingsSummary" class="text-xs" style="color: #555;"></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="apiSavedPill" class="success-pill hidden">✓ API key saved</span>
+          <span class="text-xs" style="color: #555;">Edit ↓</span>
+        </div>
+      </div>
+
+      <!-- Expanded settings -->
+      <div id="settingsExpanded">
+        <div class="px-5 pt-5 pb-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold" style="color: #AAA;">
+              <span style="color: #6366F1;">1</span> &nbsp;Settings
+            </h3>
+            <button id="settingsCollapseBtn" onclick="toggleSettings()"
+                    class="text-xs hidden"
+                    style="color: #555;">
+              Collapse ↑
+            </button>
+          </div>
+
+          <div class="space-y-4">
+
+            <!-- API Key -->
+            <div>
+              <label class="block text-xs font-medium mb-1.5" style="color: #888;">
+                🔑 &nbsp;Anthropic API Key
+              </label>
+              <div class="flex gap-2">
+                <input type="password" id="apiKey" placeholder="sk-ant-..." maxlength="200"
+                       class="input-field flex-1 rounded-lg px-3 py-2.5 text-sm font-mono"
+                       oninput="onSettingsChange()">
+                <button onclick="saveSettings()" class="btn-primary text-white text-sm font-medium px-4 rounded-lg whitespace-nowrap">
+                  Save
+                </button>
+              </div>
+              <p class="text-xs mt-1.5" style="color: #555;">
+                Your key stays in your browser.
+                <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener"
+                   style="color: #6366F1;">Get one here →</a>
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+
+              <!-- Business Name -->
+              <div>
+                <label class="block text-xs font-medium mb-1.5" style="color: #888;">
+                  Newsletter / Business Name
+                </label>
+                <input type="text" id="businessName" placeholder="e.g. BuildProven" maxlength="60"
+                       class="input-field w-full rounded-lg px-3 py-2.5 text-sm"
+                       oninput="onSettingsChange()">
+              </div>
+
+              <!-- ICP -->
+              <div>
+                <label class="block text-xs font-medium mb-1.5" style="color: #888;">
+                  Target Audience (ICP)
+                </label>
+                <select id="icp" class="input-field w-full rounded-lg px-3 py-2.5 text-sm"
+                        onchange="onSettingsChange()">
+                  <option value="B2B professionals">B2B professionals</option>
+                  <option value="SaaS founders">SaaS founders</option>
+                  <option value="Newsletter creators">Newsletter creators</option>
+                  <option value="Indie builders">Indie builders</option>
+                  <option value="Custom">Custom</option>
+                </select>
+              </div>
+
+            </div>
+
+            <!-- Custom ICP (shown when Custom is selected) -->
+            <div id="customIcpWrap" class="hidden">
+              <label class="block text-xs font-medium mb-1.5" style="color: #888;">
+                Describe your audience
+              </label>
+              <input type="text" id="customIcp" placeholder="e.g. Senior program managers at automotive OEMs"
+                     maxlength="120" class="input-field w-full rounded-lg px-3 py-2.5 text-sm"
+                     oninput="onSettingsChange()">
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─── STEP 2: INPUT ─────────────────────────────────────── -->
+    <div class="settings-panel mb-5">
+      <div class="px-5 pt-5 pb-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold" style="color: #AAA;">
+            <span style="color: #6366F1;">2</span> &nbsp;Your Newsletter Content
+          </h3>
+          <span id="charCounter" class="char-counter">0 chars</span>
+        </div>
+
+        <textarea id="newsletterContent"
+                  placeholder="Paste your newsletter here — issue title, key insights, data points, stories, links, takeaways...&#10;&#10;The more context you give, the better the posts. Works best with 200+ words."
+                  rows="10"
+                  class="input-field w-full rounded-lg px-4 py-3 text-sm resize-y"
+                  style="min-height: 200px; line-height: 1.6;"
+                  oninput="onContentChange(this)"></textarea>
+
+        <div id="contentError" class="hidden mt-2 text-xs" style="color: #f87171;">
+          ↑ Paste your newsletter content before generating
+        </div>
+
+        <!-- Error Box -->
+        <div id="errorBox" class="error-box hidden mt-4 px-4 py-3">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-medium" id="errorTitle"></p>
+              <p class="text-xs mt-0.5" id="errorMessage" style="color: #fca5a5; opacity: 0.8;"></p>
+            </div>
+            <button onclick="clearError()" class="text-xs ml-3 shrink-0" style="color: #f87171; opacity: 0.6;">✕</button>
+          </div>
+          <div id="errorActions" class="mt-2 hidden">
+            <button onclick="generatePosts()" class="text-xs px-3 py-1.5 rounded"
+                    style="background: rgba(248,113,113,0.15); color: #fca5a5; border: 1px solid rgba(248,113,113,0.3);">
+              ↺ Retry
+            </button>
+          </div>
+        </div>
+
+        <!-- Generate Button -->
+        <div class="mt-4 flex items-center gap-3">
+          <button id="generateBtn" onclick="generatePosts()"
+                  class="btn-primary text-white font-semibold px-6 py-3 rounded-xl text-sm">
+            ✨ Generate Social Posts
+          </button>
+
+          <!-- Loading state (replaces button) -->
+          <div id="loadingState" class="loading-state items-center gap-3 hidden">
+            <div class="spinner w-5 h-5 rounded-full border-2 shrink-0"
+                 style="border-color: #333; border-top-color: #6366F1;"></div>
+            <span class="text-sm" style="color: #888;">Analyzing newsletter content...</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── STEP 3: RESULTS ───────────────────────────────────── -->
+    <div id="resultsSection" class="hidden slide-up">
+
+      <!-- Results header -->
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold" style="color: #AAA;">
+          <span style="color: #6366F1;">3</span> &nbsp;Your Social Posts
+        </h3>
+        <div class="flex items-center gap-2">
+          <button onclick="copyAllAsMarkdown()"
+                  class="copy-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            ⬇ Copy all as .md
+          </button>
+          <button onclick="regenerate()"
+                  class="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                  style="background: #181818; color: #888; border: 1px solid #252525;">
+            ↺ Regenerate
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-0 mb-5" style="border-bottom: 1px solid #252525;">
+        <button class="tab-btn active text-sm font-medium px-4 py-2.5" onclick="switchTab('linkedin')" id="tab-linkedin">
+          LinkedIn <span id="tab-linkedin-count" class="ml-1 text-xs opacity-60"></span>
+        </button>
+        <button class="tab-btn text-sm font-medium px-4 py-2.5" onclick="switchTab('twitter')" id="tab-twitter">
+          Twitter/X <span id="tab-twitter-count" class="ml-1 text-xs opacity-60"></span>
+        </button>
+        <button class="tab-btn text-sm font-medium px-4 py-2.5" onclick="switchTab('hooks')" id="tab-hooks">
+          Hooks <span id="tab-hooks-count" class="ml-1 text-xs opacity-60"></span>
+        </button>
+      </div>
+
+      <!-- LinkedIn Tab -->
+      <div id="panel-linkedin">
+        <div id="linkedinPosts" class="space-y-4"></div>
+      </div>
+
+      <!-- Twitter Tab -->
+      <div id="panel-twitter" class="hidden">
+        <div id="twitterPosts" class="space-y-3"></div>
+      </div>
+
+      <!-- Hooks Tab -->
+      <div id="panel-hooks" class="hidden">
+        <div class="mb-3">
+          <p class="text-xs" style="color: #666;">
+            10 high-converting opening lines. Test these as your first post line, email subject, or headline.
+          </p>
+        </div>
+        <div id="hooksList" class="space-y-2"></div>
+      </div>
+
+      <!-- Week schedule suggestion -->
+      <div class="schedule-box mt-6 px-4 py-4">
+        <div class="flex items-start gap-3">
+          <span class="text-lg">📅</span>
+          <div>
+            <p class="text-xs font-semibold mb-1" style="color: #A5B4FC;">Week Schedule</p>
+            <p class="text-xs" style="color: #888; line-height: 1.6;">
+              Post LinkedIn posts <strong style="color: #ccc;">Mon / Wed / Fri</strong>.
+              Tweet <strong style="color: #ccc;">daily</strong> (rotate through your 5 tweets over 5 days).
+              Use <strong style="color: #ccc;">hooks to A/B test</strong> subject lines and post openers.
+              Repurpose the thread opener as a Substack note or LinkedIn newsletter teaser.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────── -->
+  <footer class="max-w-3xl mx-auto px-4 py-8 mt-4" style="border-top: 1px solid #1A1A1A;">
+    <div class="flex items-center justify-between text-xs" style="color: #444;">
+      <span>Newsletter → Social · <a href="https://buildproven.ai" target="_blank" style="color: #555;">BuildProven</a></span>
+      <span>Your API key stays in your browser · MIT License</span>
+    </div>
+  </footer>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       JAVASCRIPT
+  ═══════════════════════════════════════════════════════════ -->
+  <script>
+    // ─────────────────────────────────────────────────────────────
+    // STATE
+    // ─────────────────────────────────────────────────────────────
+
+    let state = {
+      results: null,       // parsed API response
+      activeTab: 'linkedin',
+      settingsOpen: true,
+      settingsDirty: false,
+    };
+
+    // ─────────────────────────────────────────────────────────────
+    // CONSTANTS
+    // ─────────────────────────────────────────────────────────────
+
+    const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+    const MODEL = 'claude-3-5-haiku-20241022';
+
+    // ─────────────────────────────────────────────────────────────
+    // SYSTEM PROMPT — the core product intelligence
+    // Built from real performance data: posts that hit 24K impressions
+    // vs posts that hit 129. Every rule here is backed by data.
+    // ─────────────────────────────────────────────────────────────
+
+    function buildSystemPrompt(businessName, icp) {
+      return `You are a social media content strategist with a proven track record. You have analyzed hundreds of LinkedIn posts and identified exactly what separates viral content (24,000+ impressions) from ignored content (under 300 impressions). Your job is to generate high-performing social posts from newsletter content.
+
+ABOUT THIS NEWSLETTER:
+Business/Newsletter Name: ${businessName || 'the newsletter'}
+Target Audience: ${icp}
+
+═══════════════════════════════════════════════
+PERFORMANCE DATA — WHAT ACTUALLY WORKS
+(Source: Real analytics from a newsletter with 38K+ weekly LinkedIn reach)
+═══════════════════════════════════════════════
+
+TOP PERFORMERS (14,000–24,600 impressions):
+- "I ran Claude Code for 40 days straight. Here's the honest scorecard." → 24,599 impressions
+  WHY: Specific number + specific duration + "honest" = curiosity gap. People scroll for the receipts.
+- "My Mac crashed 3 times. Not from Docker. From zombie processes." → 14,391 impressions
+  WHY: Specific failure + counterintuitive cause + specific fix (12-line bash script)
+- "63% of vibe coders aren't developers." → 6,376 impressions
+  WHY: External stat + immediate implication. One line does all the work.
+- "Cut our GitHub Actions bill by 60% in one afternoon." → 3,792 impressions
+  WHY: Specific percentage + specific time = instantly credible, instantly relevant
+
+BOTTOM PERFORMERS (under 500 impressions):
+- "I've watched enough AI product builds go sideways..." → 129 impressions
+  WHY: Soft opener, no number, no hook. Lost audience in line 1.
+- "I've been using Claude Code like most developers don't." → 304 impressions
+  WHY: Generic comparison, no specifics
+- "Everyone says AI will democratize development." → 465 impressions
+  WHY: Cliché opener, abstract thesis, no tension
+
+KEY INSIGHT FROM THE DATA:
+The single biggest predictor of LinkedIn performance is line 1. If the first line doesn't have a specific number OR name a specific problem/trap, the post will underperform. Every time.
+
+═══════════════════════════════════════════════
+LINKEDIN RULES (NON-NEGOTIABLE)
+═══════════════════════════════════════════════
+
+MUST DO:
+- NEVER start with "I" as the literal first word of the post
+- NEVER use "I'm excited to share", "thrilled to announce", "happy to report"
+- Lead with a specific number, a named problem/trap, or a counterintuitive fact
+- Use line breaks (blank line between every 1-2 sentences) — walls of text get skipped
+- The "Builder Trap" format works: name the specific mistake → explain why → show the fix
+- Honest admissions outperform positive spin: "I got this wrong for 6 months" > "Here's how I do it"
+- Concrete specifics beat vague claims: "38K people reached" > "thousands of people"
+- End with a single strong question OR a clear CTA (not both)
+- Maximum 3 hashtags, only if highly relevant. No hashtag spam.
+
+NEVER DO:
+- Generic openers ("In today's fast-paced world...", "AI is changing everything...")
+- Technical jargon leads for non-technical audiences (swap memory, CI pipelines, etc. unless explained)
+- Burying the real insight in paragraph 3 or 4
+- Multiple competing CTAs
+- More than 3 hashtags
+- Emoji spam
+
+REACH TIER SIGNALS:
+🟢 HIGH: Post has a specific number in line 1 OR names a specific trap/mistake, + concrete details throughout, + honest failure/vulnerability, + single clear CTA
+🟡 MEDIUM: Solid structure with concrete details but opener could be stronger, no viral trigger
+🔴 LOW: Generic opener, no specific numbers, tech jargon leads, vague claims, hashtag spam
+
+═══════════════════════════════════════════════
+TWITTER/X RULES
+═══════════════════════════════════════════════
+- Strict 280 character limit for standalone tweets
+- Data-first when possible: lead with the number or stat
+- Specific > vague always: "in 6 hours" not "quickly"
+- Pattern interrupt: say something that stops the scroll
+- Thread openers should tease a payoff people want to see
+- Engagement tweets should ask a genuine question the audience will actually answer
+
+═══════════════════════════════════════════════
+HOOK ANGLE DEFINITIONS
+═══════════════════════════════════════════════
+- curiosity: Creates a knowledge gap. "The thing nobody mentions about X..."
+- data: Opens with a number or stat. "63% of Y do X."
+- confession: Admits a mistake. "I got this wrong for 3 years."
+- contrarian: Challenges a common belief. "Everyone says X. Here's why that's backwards."
+- specific: Names a precise outcome or scenario. "In 6 hours, I built [specific thing] that replaces $1,200/yr..."
+- story: Opens a narrative loop. "Last Tuesday, I was [situation]..."
+- question: Opens with a question that forces self-reflection.
+
+═══════════════════════════════════════════════
+OUTPUT FORMAT (return ONLY valid JSON, no markdown wrapper)
+═══════════════════════════════════════════════
+
+{
+  "linkedin": [
+    {
+      "angle": "insight",
+      "angleLabel": "The Insight Angle",
+      "post": "Full LinkedIn post text here, with \\n\\n between paragraphs for readability",
+      "whyItWorks": "One sentence explaining the specific engagement mechanism",
+      "reachTier": "high",
+      "charCount": 0
+    },
+    {
+      "angle": "story",
+      "angleLabel": "The Story Angle",
+      "post": "Full LinkedIn post text here",
+      "whyItWorks": "One sentence explaining why",
+      "reachTier": "medium",
+      "charCount": 0
+    },
+    {
+      "angle": "question",
+      "angleLabel": "The Provocative Question Angle",
+      "post": "Full LinkedIn post text here",
+      "whyItWorks": "One sentence explaining why",
+      "reachTier": "medium",
+      "charCount": 0
+    }
+  ],
+  "twitter": [
+    {
+      "type": "standalone",
+      "typeLabel": "Standalone Tweet",
+      "tweet": "Under 280 chars. Data or specifics first."
+    },
+    {
+      "type": "standalone",
+      "typeLabel": "Standalone Tweet",
+      "tweet": "Under 280 chars. Different angle from tweet 1."
+    },
+    {
+      "type": "standalone",
+      "typeLabel": "Standalone Tweet",
+      "tweet": "Under 280 chars. Third angle — could be the contrarian take."
+    },
+    {
+      "type": "thread",
+      "typeLabel": "Thread Opener 🧵",
+      "tweet": "Thread opener — teases the payoff. Under 280 chars. End with 🧵"
+    },
+    {
+      "type": "engagement",
+      "typeLabel": "Engagement Tweet",
+      "tweet": "A tweet that ends with a genuine question your audience will answer. Under 280 chars."
+    }
+  ],
+  "hooks": [
+    { "angle": "curiosity", "hook": "Opening line" },
+    { "angle": "data", "hook": "Opening line with a number" },
+    { "angle": "confession", "hook": "Opening line admitting something" },
+    { "angle": "contrarian", "hook": "Opening line that challenges a belief" },
+    { "angle": "specific", "hook": "Opening line with a specific outcome" },
+    { "angle": "story", "hook": "Opening line that starts a narrative" },
+    { "angle": "question", "hook": "Opening line as a question" },
+    { "angle": "data", "hook": "Second data-driven hook, different stat" },
+    { "angle": "contrarian", "hook": "Second contrarian hook, different angle" },
+    { "angle": "specific", "hook": "Second specific hook, different outcome" }
+  ]
+}
+
+CRITICAL: Return ONLY the JSON object. No markdown code fences, no preamble, no explanation. Just valid JSON.`;
+    }
+
+    function buildUserPrompt(newsletterContent, businessName, icp) {
+      return `Analyze this newsletter and generate high-performing social posts:
+
+---
+${newsletterContent}
+---
+
+Generate posts that:
+1. Extract the most compelling insight, data point, or story from this newsletter
+2. Apply all the LinkedIn and Twitter rules (specific numbers, honest tone, no generic openers)
+3. Assign realistic reach tiers based on the format signals (be honest — not everything is "high")
+4. Write hooks that would make ${icp} stop scrolling
+
+After generating each LinkedIn post, calculate the actual character count and set charCount to that number.
+
+Return valid JSON only.`;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // SETTINGS — save/load from localStorage
+    // ─────────────────────────────────────────────────────────────
+
+    function loadSettings() {
+      const apiKey = localStorage.getItem('ns_apiKey') || '';
+      const businessName = localStorage.getItem('ns_businessName') || '';
+      const icp = localStorage.getItem('ns_icp') || 'B2B professionals';
+
+      document.getElementById('apiKey').value = apiKey;
+      document.getElementById('businessName').value = businessName;
+      document.getElementById('icp').value = icp;
+
+      if (icp === 'Custom') {
+        document.getElementById('customIcpWrap').classList.remove('hidden');
+        document.getElementById('customIcp').value = localStorage.getItem('ns_customIcp') || '';
+      }
+
+      // If settings are populated, collapse after load
+      if (apiKey || businessName) {
+        setTimeout(() => {
+          updateSettingsSummary();
+          if (apiKey) {
+            // Show saved indicator
+            document.getElementById('apiSavedPill').classList.remove('hidden');
+          }
+          collapseSettings();
+        }, 100);
+      }
+    }
+
+    function saveSettings() {
+      const apiKey = document.getElementById('apiKey').value.trim();
+      const businessName = document.getElementById('businessName').value.trim();
+      const icp = document.getElementById('icp').value;
+      const customIcp = document.getElementById('customIcp').value.trim();
+
+      localStorage.setItem('ns_apiKey', apiKey);
+      localStorage.setItem('ns_businessName', businessName);
+      localStorage.setItem('ns_icp', icp);
+      localStorage.setItem('ns_customIcp', customIcp);
+
+      // Visual feedback
+      const btn = event.target;
+      const orig = btn.textContent;
+      btn.textContent = '✓ Saved';
+      btn.style.background = '#16a34a';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = '';
+      }, 1500);
+
+      updateSettingsSummary();
+      document.getElementById('apiSavedPill').classList.remove('hidden');
+      state.settingsDirty = false;
+
+      // Collapse after save if all required fields are present
+      if (apiKey) {
+        setTimeout(() => collapseSettings(), 1200);
+      }
+    }
+
+    function onSettingsChange() {
+      state.settingsDirty = true;
+      const icp = document.getElementById('icp').value;
+      if (icp === 'Custom') {
+        document.getElementById('customIcpWrap').classList.remove('hidden');
+      } else {
+        document.getElementById('customIcpWrap').classList.add('hidden');
+      }
+    }
+
+    function updateSettingsSummary() {
+      const key = localStorage.getItem('ns_apiKey') || '';
+      const name = localStorage.getItem('ns_businessName') || '';
+      const icp = localStorage.getItem('ns_icp') || '';
+      const parts = [];
+      if (key) parts.push('sk-ant-•••' + key.slice(-4));
+      if (name) parts.push(name);
+      if (icp) parts.push(icp);
+      document.getElementById('settingsSummary').textContent = parts.join(' · ');
+    }
+
+    function toggleSettings() {
+      if (state.settingsOpen) {
+        collapseSettings();
+      } else {
+        expandSettings();
+      }
+    }
+
+    function collapseSettings() {
+      document.getElementById('settingsExpanded').classList.add('hidden');
+      document.getElementById('settingsCollapsed').style.display = 'flex';
+      document.getElementById('settingsCollapseBtn').classList.add('hidden');
+      state.settingsOpen = false;
+      updateSettingsSummary();
+    }
+
+    function expandSettings() {
+      document.getElementById('settingsExpanded').classList.remove('hidden');
+      document.getElementById('settingsCollapsed').style.display = 'none';
+      document.getElementById('settingsCollapseBtn').classList.remove('hidden');
+      state.settingsOpen = true;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // CONTENT INPUT
+    // ─────────────────────────────────────────────────────────────
+
+    function onContentChange(el) {
+      const len = el.value.length;
+      const counter = document.getElementById('charCounter');
+      counter.textContent = len.toLocaleString() + ' chars';
+      counter.className = 'char-counter' + (len > 8000 ? ' danger' : len > 5000 ? ' warning' : '');
+
+      // Clear content error if typing
+      if (len > 0) {
+        document.getElementById('contentError').classList.add('hidden');
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // API INTEGRATION
+    // ─────────────────────────────────────────────────────────────
+
+    async function generatePosts() {
+      const apiKey = localStorage.getItem('ns_apiKey') || document.getElementById('apiKey').value.trim();
+      const content = document.getElementById('newsletterContent').value.trim();
+      const businessName = localStorage.getItem('ns_businessName') || document.getElementById('businessName').value.trim();
+      const icp = localStorage.getItem('ns_icp') || document.getElementById('icp').value;
+      const customIcp = localStorage.getItem('ns_customIcp') || '';
+      const targetIcp = icp === 'Custom' ? (customIcp || 'professionals') : icp;
+
+      // Validate
+      if (!content) {
+        document.getElementById('contentError').classList.remove('hidden');
+        document.getElementById('newsletterContent').focus();
+        return;
+      }
+
+      if (!apiKey) {
+        showError('Missing API Key', 'Enter your Anthropic API key in Settings above. It stays in your browser.', false);
+        expandSettings();
+        document.getElementById('apiKey').focus();
+        return;
+      }
+
+      // UI: loading state
+      clearError();
+      setLoading(true);
+      document.getElementById('resultsSection').classList.add('hidden');
+
+      try {
+        const response = await fetch(ANTHROPIC_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true',
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            max_tokens: 4000,
+            system: buildSystemPrompt(businessName, targetIcp),
+            messages: [
+              {
+                role: 'user',
+                content: buildUserPrompt(content, businessName, targetIcp)
+              }
+            ]
+          })
+        });
+
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          handleApiError(response.status, body);
+          return;
+        }
+
+        const data = await response.json();
+        const rawText = data?.content?.[0]?.text || '';
+
+        // Parse the JSON response
+        let parsed;
+        try {
+          // Handle case where model wraps JSON in code fences despite instructions
+          const cleaned = rawText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+          parsed = JSON.parse(cleaned);
+        } catch (e) {
+          // Try to extract JSON from within the response
+          const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              parsed = JSON.parse(jsonMatch[0]);
+            } catch {
+              throw new Error('Could not parse API response as JSON. Try regenerating.');
+            }
+          } else {
+            throw new Error('Unexpected response format. Try regenerating.');
+          }
+        }
+
+        // Validate structure
+        if (!parsed.linkedin || !parsed.twitter || !parsed.hooks) {
+          throw new Error('Incomplete response from API. Try regenerating.');
+        }
+
+        // Calculate char counts if model didn't
+        parsed.linkedin.forEach(post => {
+          if (!post.charCount || post.charCount === 0) {
+            post.charCount = post.post.length;
+          }
+        });
+
+        state.results = parsed;
+        renderResults(parsed);
+
+        // Show results
+        const resultsEl = document.getElementById('resultsSection');
+        resultsEl.classList.remove('hidden');
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      } catch (err) {
+        if (err.name === 'TypeError' && err.message.includes('fetch')) {
+          showError('Network Error', 'Could not reach the Anthropic API. Check your internet connection.', true);
+        } else {
+          showError('Error', err.message || 'Something went wrong. Try regenerating.', true);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function handleApiError(status, body) {
+      const errType = body?.error?.type || '';
+      const errMsg = body?.error?.message || '';
+
+      if (status === 401) {
+        showError(
+          'Invalid API Key',
+          'Your Anthropic API key was rejected. Check it\'s correct — get one at console.anthropic.com/settings/keys',
+          false
+        );
+        expandSettings();
+      } else if (status === 429) {
+        showError(
+          'Rate Limited',
+          'You\'ve hit the API rate limit. Wait a moment and try again.',
+          true
+        );
+      } else if (status === 400) {
+        showError(
+          'Bad Request',
+          errMsg || 'The request was malformed. Try again with different content.',
+          true
+        );
+      } else if (status === 529 || status === 503) {
+        showError(
+          'API Overloaded',
+          'Anthropic\'s API is temporarily overloaded. Wait a moment and retry.',
+          true
+        );
+      } else {
+        showError(
+          `API Error (${status})`,
+          errMsg || 'Something went wrong on Anthropic\'s end. Try again.',
+          true
+        );
+      }
+    }
+
+    function setLoading(loading) {
+      const btn = document.getElementById('generateBtn');
+      const loadingEl = document.getElementById('loadingState');
+
+      if (loading) {
+        btn.classList.add('hidden');
+        loadingEl.classList.remove('hidden');
+        loadingEl.classList.add('flex');
+      } else {
+        btn.classList.remove('hidden');
+        loadingEl.classList.add('hidden');
+        loadingEl.classList.remove('flex');
+      }
+    }
+
+    function regenerate() {
+      generatePosts();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // ERROR HANDLING
+    // ─────────────────────────────────────────────────────────────
+
+    function showError(title, message, showRetry) {
+      document.getElementById('errorTitle').textContent = title;
+      document.getElementById('errorMessage').textContent = message;
+      document.getElementById('errorBox').classList.remove('hidden');
+      if (showRetry) {
+        document.getElementById('errorActions').classList.remove('hidden');
+      } else {
+        document.getElementById('errorActions').classList.add('hidden');
+      }
+    }
+
+    function clearError() {
+      document.getElementById('errorBox').classList.add('hidden');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // RENDER RESULTS
+    // ─────────────────────────────────────────────────────────────
+
+    function renderResults(data) {
+      renderLinkedIn(data.linkedin);
+      renderTwitter(data.twitter);
+      renderHooks(data.hooks);
+
+      // Update tab counts
+      document.getElementById('tab-linkedin-count').textContent = `(${data.linkedin.length})`;
+      document.getElementById('tab-twitter-count').textContent = `(${data.twitter.length})`;
+      document.getElementById('tab-hooks-count').textContent = `(${data.hooks.length})`;
+
+      // Reset to LinkedIn tab
+      switchTab('linkedin');
+    }
+
+    function renderLinkedIn(posts) {
+      const container = document.getElementById('linkedinPosts');
+      container.innerHTML = '';
+
+      posts.forEach((post, i) => {
+        const tier = (post.reachTier || 'medium').toLowerCase();
+        const tierConfig = {
+          high: { emoji: '🟢', label: 'High Reach', cls: 'tier-high' },
+          medium: { emoji: '🟡', label: 'Medium Reach', cls: 'tier-medium' },
+          low: { emoji: '🔴', label: 'Lower Reach', cls: 'tier-low' },
+        }[tier] || { emoji: '🟡', label: 'Medium Reach', cls: 'tier-medium' };
+
+        const card = document.createElement('div');
+        card.className = 'post-card rounded-xl overflow-hidden';
+
+        card.innerHTML = `
+          <div class="px-4 pt-4 pb-3 flex items-center justify-between" style="border-bottom: 1px solid #222;">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold" style="color: #888;">${escapeHtml(post.angleLabel || 'Post ' + (i+1))}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="tooltip-wrapper">
+                <span class="${tierConfig.cls} angle-pill cursor-help">
+                  ${tierConfig.emoji} ${tierConfig.label}
+                </span>
+                <span class="tooltip-content">${escapeHtml(post.whyItWorks || 'Performance signal based on format patterns from real data.')}</span>
+              </span>
+              <span class="text-xs" style="color: #555;">${(post.charCount || post.post.length).toLocaleString()} chars</span>
+            </div>
+          </div>
+          <div class="px-4 py-4">
+            <div class="post-content" id="li-post-${i}">${escapeHtml(post.post)}</div>
+          </div>
+          <div class="px-4 pb-4 flex items-center gap-2">
+            <button onclick="copyPost('li-post-${i}', this)"
+                    class="copy-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+              📋 Copy post
+            </button>
+            <span class="tooltip-wrapper">
+              <button class="text-xs px-2.5 py-1.5 rounded-lg cursor-help"
+                      style="background: #1a1a1a; color: #555; border: 1px solid #222;">
+                Why this works ↗
+              </button>
+              <span class="tooltip-content">${escapeHtml(post.whyItWorks || 'Engineered based on top-performing post patterns.')}</span>
+            </span>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderTwitter(tweets) {
+      const container = document.getElementById('twitterPosts');
+      container.innerHTML = '';
+
+      const typeColors = {
+        standalone: { bg: 'rgba(96,165,250,0.08)', color: '#60a5fa', border: 'rgba(96,165,250,0.2)' },
+        thread:     { bg: 'rgba(167,139,250,0.08)', color: '#a78bfa', border: 'rgba(167,139,250,0.2)' },
+        engagement: { bg: 'rgba(74,222,128,0.08)',  color: '#4ade80', border: 'rgba(74,222,128,0.2)' },
+      };
+
+      tweets.forEach((tweet, i) => {
+        const tc = typeColors[tweet.type] || typeColors.standalone;
+        const charCount = tweet.tweet.length;
+        const overLimit = charCount > 280;
+
+        const card = document.createElement('div');
+        card.className = 'post-card rounded-xl p-4';
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <span class="tweet-type px-2 py-1 rounded-md"
+                  style="background: ${tc.bg}; color: ${tc.color}; border: 1px solid ${tc.border};">
+              ${escapeHtml(tweet.typeLabel || tweet.type)}
+            </span>
+            <span class="text-xs ${overLimit ? 'text-red-400' : ''}" style="color: ${overLimit ? '#f87171' : '#555'};">
+              ${charCount}/280
+            </span>
+          </div>
+          <div class="post-content mb-3" id="tw-post-${i}">${escapeHtml(tweet.tweet)}</div>
+          <button onclick="copyPost('tw-post-${i}', this)"
+                  class="copy-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            📋 Copy
+          </button>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderHooks(hooks) {
+      const container = document.getElementById('hooksList');
+      container.innerHTML = '';
+
+      hooks.forEach((hook, i) => {
+        const angleClass = `angle-${hook.angle}` || 'angle-curiosity';
+
+        const item = document.createElement('div');
+        item.className = 'post-card rounded-lg px-4 py-3 flex items-center justify-between gap-3';
+
+        item.innerHTML = `
+          <div class="flex items-center gap-3 flex-1 min-w-0">
+            <span class="shrink-0 text-xs font-bold w-5 text-center" style="color: #444;">${i+1}</span>
+            <span class="angle-pill ${angleClass} shrink-0">${escapeHtml(hook.angle)}</span>
+            <span class="text-sm flex-1 min-w-0 truncate" style="color: #DDD;" id="hook-${i}"
+                  title="${escapeHtml(hook.hook)}">${escapeHtml(hook.hook)}</span>
+          </div>
+          <button onclick="copyPost('hook-${i}', this)"
+                  class="copy-btn px-2.5 py-1.5 rounded-lg shrink-0 flex items-center gap-1">
+            📋
+          </button>
+        `;
+
+        container.appendChild(item);
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // TAB SWITCHING
+    // ─────────────────────────────────────────────────────────────
+
+    function switchTab(tab) {
+      state.activeTab = tab;
+
+      // Update tab buttons
+      ['linkedin', 'twitter', 'hooks'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tab) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Show/hide panels
+      document.getElementById('panel-linkedin').classList.toggle('hidden', tab !== 'linkedin');
+      document.getElementById('panel-twitter').classList.toggle('hidden', tab !== 'twitter');
+      document.getElementById('panel-hooks').classList.toggle('hidden', tab !== 'hooks');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // COPY UTILITIES
+    // ─────────────────────────────────────────────────────────────
+
+    async function copyPost(elementId, btn) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      const text = el.textContent || el.innerText;
+
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {
+        // Fallback for non-HTTPS or older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+
+      // Visual feedback
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = orig;
+        btn.classList.remove('copied');
+      }, 1800);
+    }
+
+    function copyAllAsMarkdown() {
+      if (!state.results) return;
+      const { linkedin, twitter, hooks } = state.results;
+      const businessName = localStorage.getItem('ns_businessName') || 'Newsletter';
+
+      let md = `# ${businessName} — Social Posts\n\n`;
+      md += `> Generated by Newsletter → Social · [buildproven.ai](https://buildproven.ai)\n\n`;
+      md += `---\n\n`;
+
+      md += `## LinkedIn Posts\n\n`;
+      linkedin.forEach((post, i) => {
+        const tier = post.reachTier === 'high' ? '🟢 High' : post.reachTier === 'low' ? '🔴 Low' : '🟡 Medium';
+        md += `### ${post.angleLabel || `Post ${i+1}`} — ${tier} Reach\n\n`;
+        md += `${post.post}\n\n`;
+        md += `*Why this works: ${post.whyItWorks}*\n\n`;
+        md += `---\n\n`;
+      });
+
+      md += `## Twitter/X Posts\n\n`;
+      twitter.forEach((t, i) => {
+        md += `### ${t.typeLabel || t.type}\n\n`;
+        md += `${t.tweet}\n\n`;
+        md += `---\n\n`;
+      });
+
+      md += `## Hooks (10 Opening Lines)\n\n`;
+      hooks.forEach((h, i) => {
+        md += `${i+1}. **[${h.angle}]** ${h.hook}\n`;
+      });
+
+      md += `\n---\n\n`;
+      md += `## Week Schedule\n\n`;
+      md += `- **LinkedIn:** Post Mon / Wed / Fri\n`;
+      md += `- **Twitter/X:** Tweet daily (rotate through your 5 tweets)\n`;
+      md += `- **Hooks:** A/B test as email subject lines and post openers\n`;
+
+      // Trigger download
+      const blob = new Blob([md], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const slug = (businessName || 'newsletter').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      a.download = `${slug}-social-posts.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // Visual feedback on button
+      const btn = event.target;
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✓ Downloaded!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = orig;
+        btn.classList.remove('copied');
+      }, 2000);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // UTILITIES
+    // ─────────────────────────────────────────────────────────────
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────────────────────────────
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+
+      // ICP change handler
+      document.getElementById('icp').addEventListener('change', () => {
+        const val = document.getElementById('icp').value;
+        document.getElementById('customIcpWrap').classList.toggle('hidden', val !== 'Custom');
+      });
+
+      // Keyboard shortcut: Cmd/Ctrl+Enter to generate
+      document.getElementById('newsletterContent').addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+          generatePosts();
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
